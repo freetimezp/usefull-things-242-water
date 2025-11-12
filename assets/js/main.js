@@ -38,6 +38,36 @@ document.addEventListener("DOMContentLoaded", () => {
     let rtA = new THREE.WebGLRenderTarget(width, height, options);
     let rtB = new THREE.WebGLRenderTarget(width, height, options);
 
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d", { alpha: false });
+
+    const textTexture = new THREE.CanvasTexture(canvas);
+    textTexture.minFilter = THREE.LinearFilter;
+    textTexture.magFilter = THREE.LinearFilter;
+    textTexture.format = THREE.RGBAFormat;
+
+    const textureLoader = new THREE.TextureLoader();
+    const backgroundTexture = textureLoader.load("./assets/images/bg.jpg"); // path to your JPG image
+
+    backgroundTexture.minFilter = THREE.LinearFilter;
+    backgroundTexture.magFilter = THREE.LinearFilter;
+    backgroundTexture.format = THREE.RGBAFormat;
+
+    ctx.fillStyle = "#113a5d";
+    ctx.fillRect(0, 0, width, height);
+
+    const fontSize = Math.round(250 * window.devicePixelRatio);
+    ctx.fillStyle = "#fff";
+    ctx.font = `bold ${fontSize}px "Test Sohne"`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.textRendering = "geometricPrecision";
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    ctx.fillText("відпустка", width / 2, height / 2);
+
     const simMaterial = new THREE.ShaderMaterial({
         uniforms: {
             textureA: { value: null },
@@ -55,8 +85,8 @@ document.addEventListener("DOMContentLoaded", () => {
         uniforms: {
             textureA: { value: null },
             textureB: { value: null },
+            backgroundTexture: { value: backgroundTexture },
         },
-
         vertexShader: renderVertexShader,
         fragmentShader: renderFragmentShader,
         transparent: true,
@@ -68,29 +98,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     simScene.add(simMesh);
     scene.add(renderMesh);
-
-    const canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext("2d", { alpha: false });
-
-    ctx.fillStyle = "#000";
-    ctx.fillRect(0, 0, width, height);
-
-    const fontSize = Math.round(250 * window.devicePixelRatio);
-    ctx.fillStyle = "#fff";
-    ctx.font = `bold ${fontSize}px "Test Sohne"`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.textRendering = "geometricPrecision";
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high";
-    ctx.fillText("відпустка", width / 2, height / 2);
-
-    const textTexture = new THREE.CanvasTexture(canvas);
-    textTexture.minFilter = THREE.LinearFilter;
-    textTexture.magFilter = THREE.LinearFilter;
-    textTexture.format = THREE.RGBAFormat;
 
     window.addEventListener("resize", () => {
         const newWidth = window.innerWidth * window.devicePixelRatio;

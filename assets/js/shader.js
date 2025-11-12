@@ -91,23 +91,27 @@ export const renderVertexShader = `
 export const renderFragmentShader = `
     uniform sampler2D textureA;
     uniform sampler2D textureB;
+    uniform sampler2D backgroundTexture;
     varying vec2 vUv;
 
     void main() {
-        // Sample wave simulation data
         vec4 data = texture2D(textureA, vUv);
-        
-        // Use pressure gradients for distortion
         vec2 distortion = 0.3 * data.zw;
-        vec4 color = texture2D(textureB, vUv + distortion);
-        
-        // Create normal from gradients for lighting
+
+        // Sample the background image
+        vec4 bg = texture2D(backgroundTexture, vUv);
+
+        // Sample the distorted text texture
+        vec4 textColor = texture2D(textureB, vUv + distortion);
+
+        // Combine them — you can tweak the mix ratio (0.7 = 70% bg, 30% text)
+        vec4 color = mix(bg, textColor, 0.7);
+
+        // Add lighting
         vec3 normal = normalize(vec3(-data.z * 2.0, 0.5, -data.w * 2.0));
         vec3 lightDir = normalize(vec3(-3.0, 10.0, 3.0));
-        
-        // Calculate specular highlight
         float specular = pow(max(0.0, dot(normal, lightDir)), 60.0) * 1.5;
-        
+
         gl_FragColor = color + vec4(specular, specular, specular, 0.0);
     }
 `;
